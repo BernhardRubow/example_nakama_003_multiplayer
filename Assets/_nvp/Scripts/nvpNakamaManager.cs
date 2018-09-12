@@ -5,6 +5,7 @@ using Nakama;
 using System;
 using newvisionsproject.managers.events;
 
+
 public class nvpNakamaManager : MonoBehaviour
 {
 
@@ -29,6 +30,7 @@ public class nvpNakamaManager : MonoBehaviour
 	private string _playerId;
 	private IUserManager _userManager;
 	private List<IUserPresence> _connectedUsers;
+    
 
 
 
@@ -110,7 +112,14 @@ public class nvpNakamaManager : MonoBehaviour
     }
     private void OnMatchState(object sender, IMatchState e)
     {
-        Debug.Log("OnMatchStateMatched");
+
+        
+
+
+        Debug.Log("OnMatchState");
+        string sMsg = System.Text.Encoding.UTF8.GetString(e.State);
+        nvpEventManager.INSTANCE.InvokeEvent(OnMatchState, e.OpCode, )
+
     }
 
     private void OnMatchPresence(object sender, IMatchPresenceEvent e)
@@ -138,7 +147,7 @@ public class nvpNakamaManager : MonoBehaviour
 
 	// +++ public class methods +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 	public List<IUserPresence> GetConnectedUsers() => _connectedUsers;
-
+    public IUserPresence GetSelf() => _self;
 
 
 

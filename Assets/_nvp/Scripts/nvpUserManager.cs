@@ -25,8 +25,13 @@ public class nvpUserManager: MonoBehaviour, IUserManager {
 
 
     // +++ event handler ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+	// +++ interface methods ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+	public string GetPlayerId() => _playerId;
+
+
+	
     // +++ class methods ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 
-    public string GetPlayerId() => _playerId;
+    
 
 }
