@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using UnityEngine;
 using Nakama;
 using System;
+using newvisionsproject.managers.events;
 
 public class nvpNakamaManager : MonoBehaviour
 {
@@ -26,7 +27,7 @@ public class nvpNakamaManager : MonoBehaviour
 	private IUserPresence _self;
 	private string _matchId;
 	private string _playerId;
-	private nvpUserManager _userManager;
+	private IUserManager _userManager;
 	private List<IUserPresence> _connectedUsers;
 
 
@@ -39,7 +40,7 @@ public class nvpNakamaManager : MonoBehaviour
 
 		// create client
 		_client = new Client(_key, _host, 7350, false);
-        _playerId = _userManager.playerId;
+        _playerId = _userManager.GetPlayerId();
 
 		// create session
         _session = await _client.AuthenticateDeviceAsync(_playerId);
@@ -83,7 +84,12 @@ public class nvpNakamaManager : MonoBehaviour
 			Debug.LogFormat("Players in Game: {0}", _connectedUsers.Count);
 			yield return new WaitForSeconds(1.0f);
 		}
-		Debug.LogFormat("Players in Game: {0}", _connectedUsers.Count);
+		
+        nvpEventManager.INSTANCE.InvokeEvent(
+            GameEvents.OnAllPlayersJoined,
+            this,
+            _connectedUsers
+        );
 	}
 
 
@@ -138,7 +144,11 @@ public class nvpNakamaManager : MonoBehaviour
 
     // +++ private class methods ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 	void Init(){
-		_userManager = this.GetComponent<nvpUserManager>();
+
+		_userManager = GameObject.Find("managers").GetComponent<IUserManager>();
+        if(_userManager == null){
+            Debug.LogWarning("No user manager found");
+        }
 		_connectedUsers = new List<IUserPresence>();
 	}
 

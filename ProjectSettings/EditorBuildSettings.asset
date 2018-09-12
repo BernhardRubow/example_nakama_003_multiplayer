@@ -8,4 +8,10 @@ EditorBuildSettings:
   - enabled: 1
     path: Assets/_nvp/Scenes/_main.unity
     guid: 49be6e643e37acf439dc1edfe39fbb14
+  - enabled: 1
+    path: Assets/_nvp/Scenes/_nakama.unity
+    guid: b58056f6cd0fbe94da9b897e2f7b38a6
+  - enabled: 1
+    path: Assets/_nvp/Scenes/_game.unity
+    guid: 97f16f017f5d81649b246388d980a25c
   m_configObjects: {}

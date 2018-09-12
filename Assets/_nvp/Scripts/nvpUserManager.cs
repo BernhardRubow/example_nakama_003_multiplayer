@@ -1,13 +1,14 @@
-﻿using System.Collections;
+﻿using System;
+using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
-public class nvpUserManager: MonoBehaviour {
+public class nvpUserManager: MonoBehaviour, IUserManager {
 
 	// +++ public fields ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++    
-	public string playerId;
 	// +++ editor fields ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 	// +++ private fields +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+	private string _playerId;
     
     
     
@@ -17,18 +18,15 @@ public class nvpUserManager: MonoBehaviour {
 		if (!PlayerPrefs.HasKey("id")){
 			PlayerPrefs.SetString("id", System.Guid.NewGuid().ToString());
 		}
-		playerId = PlayerPrefs.GetString("id");
+		_playerId = PlayerPrefs.GetString("id");
 	}
-	
-	// Update is called once per frame
-	void Update () {
-		
-	}
-    
-    
-    
-    
-  // +++ event handler ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
-  // +++ class methods ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+
+
+
+
+    // +++ event handler ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+    // +++ class methods ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+
+    public string GetPlayerId() => _playerId;
 
 }
