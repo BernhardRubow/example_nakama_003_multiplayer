@@ -32,7 +32,7 @@ public class nvpGame : MonoBehaviour
     // Update is called once per frame
     void Update()
     {
-
+        
     }
 
 
@@ -46,6 +46,10 @@ public class nvpGame : MonoBehaviour
 		{
 			var user = Instantiate(_playerPrefab, _spawnPoints[i].position, _spawnPoints[i].rotation);	
 			user.GetComponent<IUser>().SetName("Player " + (i+1).ToString());
+
+            var syncedComponent = user.GetComponent<ISyncedComponent>();
+            bool isLocal = userPresences[i].UserId == _nakama.GetSelf().UserId;
+            syncedComponent.SetLocalFlag(isLocal);
 		}
 	}
 

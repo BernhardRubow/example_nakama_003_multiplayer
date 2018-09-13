@@ -4,12 +4,14 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using System;
+using Nakama;
 
 namespace newvisionsproject.managers.events
 {
   public enum GameEvents
   {
-        OnAllPlayersJoined
+        OnAllPlayersJoined,
+        OnRealtimeMessageReceived
     }
 
   public class nvpEventManager : MonoBehaviour
@@ -70,5 +72,10 @@ namespace newvisionsproject.managers.events
     {
       eventCallbacks = new Dictionary<GameEvents, List<Action<object, object>>>();
     }
-  }
+
+        internal void InvokeEvent(Action<object, IMatchState> onMatchState, long opCode, string sMsg)
+        {
+            throw new NotImplementedException();
+        }
+    }
 }

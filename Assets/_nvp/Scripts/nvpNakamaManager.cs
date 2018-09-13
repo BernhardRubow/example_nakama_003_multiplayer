@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using UnityEngine;
 using Nakama;
+using Nakama.TinyJson;
 using System;
 using newvisionsproject.managers.events;
 
@@ -70,9 +71,7 @@ public class nvpNakamaManager : MonoBehaviour
 
 		// wait for 2 players to connect
 		StartCoroutine(WaitForPlayersToJoin());
-
     }
-
 
     // Update is called once per frame
     void Update()
@@ -95,6 +94,8 @@ public class nvpNakamaManager : MonoBehaviour
 	}
 
 
+
+
     // +++ event handler ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
     async void OnMatchmakerMatched(object sender, IMatchmakerMatched e)
     {
@@ -110,18 +111,24 @@ public class nvpNakamaManager : MonoBehaviour
 
 		_connectedUsers.AddRange(_match.Presences);
     }
-    private void OnMatchState(object sender, IMatchState e)
+
+    /**
+     * Eventhandler which is reasponsible for handling
+     * realtime in game messages
+     */
+    private void OnMatchState(object sender, IMatchState msg)
     {
-
-        
-
-
-        Debug.Log("OnMatchState");
-        string sMsg = System.Text.Encoding.UTF8.GetString(e.State);
-        nvpEventManager.INSTANCE.InvokeEvent(OnMatchState, e.OpCode, )
-
+        nvpEventManager.INSTANCE.InvokeEvent(
+            GameEvents.OnRealtimeMessageReceived, 
+            msg.OpCode, 
+            msg);
     }
 
+    /**
+     * Eventhandler is called when the composition of the players in
+     * the match has changed either by joining of new player or 
+     * of player left the match.
+     */
     private void OnMatchPresence(object sender, IMatchPresenceEvent e)
     {
         Debug.Log("OnMatchPresence");
@@ -149,17 +156,24 @@ public class nvpNakamaManager : MonoBehaviour
 	public List<IUserPresence> GetConnectedUsers() => _connectedUsers;
     public IUserPresence GetSelf() => _self;
 
+    public void SendRealtimeMessage<T>(NakamaOpCodes opCode, T messageDto){
+        var sMessage = messageDto.ToJson();
+        _socket.SendMatchState(_matchId, (int)opCode, sMessage);
+    }
+
+
 
 
     // +++ private class methods ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 	void Init(){
-
 		_userManager = GameObject.Find("managers").GetComponent<IUserManager>();
         if(_userManager == null){
             Debug.LogWarning("No user manager found");
         }
 		_connectedUsers = new List<IUserPresence>();
 	}
+}
 
-
+public enum NakamaOpCodes{
+    PositionMessage
 }

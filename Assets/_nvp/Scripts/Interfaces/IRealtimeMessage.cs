@@ -2,7 +2,8 @@
 using System.Collections.Generic;
 using UnityEngine;
 
-public interface ISyncedComponent {
+public interface IRealtimeMessage {
 
-	void SetLocalFlag(bool isLocal);
+	int GetOptCode();
+
 }
