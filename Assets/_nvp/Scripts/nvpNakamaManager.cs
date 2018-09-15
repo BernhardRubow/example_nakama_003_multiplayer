@@ -6,11 +6,23 @@ using Nakama.TinyJson;
 using System;
 using newvisionsproject.managers.events;
 
-
+/**
+ * Class for handling all communication which the nakama backend server.
+ *
+ * Usage:
+ * On instantiation a connection to the nakama backend server is build up.
+ * 
+ * Use the public method 'SendRealtimeMessage' to send data to the connected players
+ *
+ * Subscribe to the 'GameEvents.OnRealtimeMessageReceived' event, which is invoked
+ * by the nvp event dispatcher.
+ */
 public class nvpNakamaManager : MonoBehaviour
 {
 
-    // +++ public fields ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++    
+    // +++ public fields ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++   
+    public const int NUMPLAYERS = 2;
+
     // +++ editor fields ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 	[SerializeField] private string _key = "defaultkey";
 	[SerializeField] private string _host = "127.0.0.1";
@@ -66,11 +78,14 @@ public class nvpNakamaManager : MonoBehaviour
 		Debug.Log("Socket connected");
 
 		// wait for match maker ticket
-		_matchMakerTicket = await _socket.AddMatchmakerAsync("*", 2, 2);
+		_matchMakerTicket = await _socket.AddMatchmakerAsync(
+            "*",
+            NUMPLAYERS,
+            NUMPLAYERS);
 		Debug.Log("Matchmaker ticket received");
 
 		// wait for 2 players to connect
-		StartCoroutine(WaitForPlayersToJoin());
+		StartCoroutine(WaitForNumberOfPlayers(NUMPLAYERS));
     }
 
     // Update is called once per frame
@@ -80,8 +95,18 @@ public class nvpNakamaManager : MonoBehaviour
     }
 
 	// +++ coroutines +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
-	IEnumerator WaitForPlayersToJoin(){
-		while(_connectedUsers.Count != 2){
+
+    /**
+     * This coroutine check in short intervalls, if the desired bumber of
+     * players have joined the game. If so, the method exits by throwning
+     * an OnAllPlayersJoined event
+     *
+     * Paramter:
+     * numberOfPlayerToMatch (int): Number of players to match to exit this
+     *                              Method
+     */
+	IEnumerator WaitForNumberOfPlayers(int numberOfPlayerToMatch){
+		while(_connectedUsers.Count != numberOfPlayerToMatch){
 			Debug.LogFormat("Players in Game: {0}", _connectedUsers.Count);
 			yield return new WaitForSeconds(1.0f);
 		}
@@ -115,6 +140,14 @@ public class nvpNakamaManager : MonoBehaviour
     /**
      * Eventhandler which is reasponsible for handling
      * realtime in game messages
+     * 
+     * Parameter:
+     * sender (object): the boxed object, which invoked this event
+     * msg (IMatchState): A nakama objece, which contains information
+     *                    about the state received like:
+     *                    - State (byteArray): the unencoded match state as byte array
+     *                    - UserPresence (IUserPresence): Information about the user, 
+     *                                                    who sent the state.
      */
     private void OnMatchState(object sender, IMatchState msg)
     {
@@ -139,11 +172,19 @@ public class nvpNakamaManager : MonoBehaviour
         };
     }
 
+    /**
+     * Event is thrown by nakama, when this client disconnect from the
+     * nakama server
+     */
     private void OnDisconnect(object sender, EventArgs e)
     {
         Debug.Log("OnDisconnect");
     }
 
+    /**
+     * Event is thrown by nakama, when this client connects to a 
+     * nakama server
+     */
     private void OnConnect(object sender, EventArgs e)
     {
         Debug.Log("OnConnect");
@@ -156,6 +197,18 @@ public class nvpNakamaManager : MonoBehaviour
 	public List<IUserPresence> GetConnectedUsers() => _connectedUsers;
     public IUserPresence GetSelf() => _self;
 
+    /**
+     * This methode is used to a serializable state message (object or struct)
+     * to the other players connected in this match. The messages are sent in
+     * JSON-Format
+     * 
+     * Parameter:
+     * opCode (NakamaOpCodes-Enum): An operation code identifier, which classifies 
+     *                              the type of the message. Is available on the
+     *                              receiving clients.
+     * messageDto(<T>): a generic item (struct or class), which has to be serializable
+     *                  Will be received on connected clients in form of a byte Array;       
+     */
     public void SendRealtimeMessage<T>(NakamaOpCodes opCode, T messageDto){
         var sMessage = messageDto.ToJson();
         _socket.SendMatchState(_matchId, (int)opCode, sMessage);

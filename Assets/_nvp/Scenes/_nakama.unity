@@ -154,5 +154,5 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   _key: defaultkey
-  _host: 192.168.244.129
+  _host: aws.newvisionsproject.de
   _port: 7350
